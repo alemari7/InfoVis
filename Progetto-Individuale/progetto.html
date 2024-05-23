@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaf and Fish Visualization</title>
+  <style>
+    svg {
+      background-color: #add8e6; /* Light blue background color */
+    }
+  </style>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+<body>
+  <svg width="1800" height="900">
+    <rect width="100%" height="100%" fill="none" stroke="black" stroke-width="2"/>
+  </svg>
+
+  <script>
+    // Impostazioni della visualizzazione
+    var width = 1800;
+    var height = 900;
+
+    // Creazione dello spazio di disegno SVG
+    var svg = d3.select("svg");
+
+    var clickState = 0;
+
+    // Funzione per disegnare le foglie
+    function drawLeaves(data) {
+      // Disegna le foglie
+      var leaves = svg.selectAll(".leaf")
+        .data(data)
+        .enter().append("path")
+        .attr("class", "leaf")
+        .attr("d", "M30 0 Q 0 20, 30 40 Q 60 20, 30 0") // Sagoma ingrandita della foglia
+        .attr("transform", function(d) { return "translate(" + d.var1 + "," + d.var2 + ")"; })
+        .attr("fill", "green")
+        .attr("data-clicked", "0"); // Stato iniziale del click
+
+      // Disegna i pesci sotto le foglie
+      var fish = svg.selectAll(".fish")
+        .data(data)
+        .enter().append("path")
+        .attr("class", "fish")
+        .attr("d", "M10 20 C 10 10, 30 10, 30 20 C 30 30, 10 30, 10 20 L 0 15 L 10 20 M 30 20 L 40 15 L 40 25 L 30 20") // Nuova forma del pesce
+        .attr("transform", function(d) { return "translate(" + (d.var1 - 20) + "," + (d.var2 - 20) + ")"; })
+        .attr("fill", "red")
+        .attr("opacity", 0); // Inizialmente nascosti
+
+
+      // Aggiunta dell'evento click per spostare le foglie
+      svg.on("click", function() {
+        var transition = svg.transition().duration(1000);
+
+        // Calcolo delle nuove posizioni in base allo stato attuale
+        if (clickState === 0) {
+          transition.selectAll(".leaf")
+            .attr("transform", function(d) { return "translate(" + d.var3 + "," + d.var4 + ")"; });
+
+          // Visualizzazione dei pesci e spostamento sotto le nuove posizioni delle foglie
+          svg.selectAll(".fish")
+            .transition().delay(200).duration(200)
+            .attr("opacity", 1)
+            .transition().delay(200).duration(200)
+            .transition().duration(1000)
+            .attr("opacity", 0)
+            .attr("transform", function(d) { return "translate(" + (d.var3 - 10) + "," + (d.var4 - 10) + ")"; });
+
+          clickState = 1;
+        } else if (clickState === 1) {
+          transition.selectAll(".leaf")
+            .attr("transform", function(d) { return "translate(" + d.var5 + "," + d.var6 + ")"; });
+
+          // Nascondi i pesci
+          svg.selectAll(".fish")
+            .transition().delay(200).duration(200)
+            .attr("opacity", 1)
+            .transition().delay(200).duration(200)
+            .transition().duration(1000)
+            .attr("opacity", 0)
+            .attr("transform", function(d) { return "translate(" + (d.var5 - 10) + "," + (d.var6 - 10) + ")"; });
+
+          clickState = 2;
+        } else if (clickState === 2) {
+          // Ritorna alle posizioni iniziali
+          transition.selectAll(".leaf")
+            .attr("transform", function(d) { return "translate(" + d.var1 + "," + d.var2 + ")"; });
+
+          transition.selectAll(".fish")
+            .attr("opacity", 1)
+            .transition().duration(1000)
+            .attr("transform", function(d) { return "translate(" + (d.var1 - 10) + "," + (d.var2 - 10) + ")"; })
+            .attr("opacity", 0);
+
+          clickState = 0;
+        }
+      });
+    }
+
+    // Carica i dati dal file JSON
+    d3.json("data.json").then(function(data) {
+      // Disegna le foglie e i pesci
+      drawLeaves(data);
+    });
+  </script>
+</body>
+</html>

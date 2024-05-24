@@ -18,8 +18,7 @@ Questo progetto è stato sviluppato per il corso di Visualizzazione delle Inform
 
 Nella cartella del progetto sono presenti i seguenti file:
 
-- `progetto.html`: Contiene il codice HTML per l'applicazione'.
-- `progetto.js`: Contiene il codice Javascript per l'applicazione.
+- `progetto.html`: Contiene il codice HTML e Javascript per l'applicazione'.
 - `data.json`: Contiene i dati multivariati necessari per la visualizzazione.
 - `server.py`: Contiene lo script python per la creazione di un server locale.
 - `README.md`: Questo file, che descrive il progetto e come eseguire il server locale.

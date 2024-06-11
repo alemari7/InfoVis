@@ -20,6 +20,7 @@
     // Impostazioni della visualizzazione
     var width = 1800;
     var height = 900;
+    var margin = 50;  // Aggiungi un margine di sicurezza
 
     // Creazione dello spazio di disegno SVG
     var svg = d3.select("svg");
@@ -28,13 +29,38 @@
 
     // Funzione per disegnare le foglie
     function drawLeaves(data) {
+      // Definisci le scale con i margini
+      var xScale1 = d3.scaleLinear()
+                      .domain(d3.extent(data, d => d.var1))
+                      .range([margin, width - margin]);
+
+      var yScale1 = d3.scaleLinear()
+                      .domain(d3.extent(data, d => d.var2))
+                      .range([margin, height - margin]);
+
+      var xScale2 = d3.scaleLinear()
+                      .domain(d3.extent(data, d => d.var3))
+                      .range([margin, width - margin]);
+
+      var yScale2 = d3.scaleLinear()
+                      .domain(d3.extent(data, d => d.var4))
+                      .range([margin, height - margin]);
+
+      var xScale3 = d3.scaleLinear()
+                      .domain(d3.extent(data, d => d.var5))
+                      .range([margin, width - margin]);
+
+      var yScale3 = d3.scaleLinear()
+                      .domain(d3.extent(data, d => d.var6))
+                      .range([margin, height - margin]);
+
       // Disegna le foglie
       var leaves = svg.selectAll(".leaf")
         .data(data)
         .enter().append("path")
         .attr("class", "leaf")
         .attr("d", "M30 0 Q 0 20, 30 40 Q 60 20, 30 0") // Sagoma ingrandita della foglia
-        .attr("transform", function(d) { return "translate(" + d.var1 + "," + d.var2 + ")"; })
+        .attr("transform", function(d) { return "translate(" + xScale1(d.var1) + "," + yScale1(d.var2) + ")"; })
         .attr("fill", "green")
         .attr("data-clicked", "0"); // Stato iniziale del click
 
@@ -44,10 +70,9 @@
         .enter().append("path")
         .attr("class", "fish")
         .attr("d", "M10 20 C 10 10, 30 10, 30 20 C 30 30, 10 30, 10 20 L 0 15 L 10 20 M 30 20 L 40 15 L 40 25 L 30 20") // Nuova forma del pesce
-        .attr("transform", function(d) { return "translate(" + (d.var1 - 20) + "," + (d.var2 - 20) + ")"; })
+        .attr("transform", function(d) { return "translate(" + (xScale1(d.var1) - 20) + "," + (yScale1(d.var2) - 20) + ")"; })
         .attr("fill", "red")
         .attr("opacity", 0); // Inizialmente nascosti
-
 
       // Aggiunta dell'evento click per spostare le foglie
       svg.on("click", function() {
@@ -56,7 +81,7 @@
         // Calcolo delle nuove posizioni in base allo stato attuale
         if (clickState === 0) {
           transition.selectAll(".leaf")
-            .attr("transform", function(d) { return "translate(" + d.var3 + "," + d.var4 + ")"; });
+            .attr("transform", function(d) { return "translate(" + xScale2(d.var3) + "," + yScale2(d.var4) + ")"; });
 
           // Visualizzazione dei pesci e spostamento sotto le nuove posizioni delle foglie
           svg.selectAll(".fish")
@@ -65,12 +90,12 @@
             .transition().delay(200).duration(200)
             .transition().duration(1000)
             .attr("opacity", 0)
-            .attr("transform", function(d) { return "translate(" + (d.var3 - 10) + "," + (d.var4 - 10) + ")"; });
+            .attr("transform", function(d) { return "translate(" + (xScale2(d.var3) - 10) + "," + (yScale2(d.var4) - 10) + ")"; });
 
           clickState = 1;
         } else if (clickState === 1) {
           transition.selectAll(".leaf")
-            .attr("transform", function(d) { return "translate(" + d.var5 + "," + d.var6 + ")"; });
+            .attr("transform", function(d) { return "translate(" + xScale3(d.var5) + "," + yScale3(d.var6) + ")"; });
 
           // Nascondi i pesci
           svg.selectAll(".fish")
@@ -79,18 +104,18 @@
             .transition().delay(200).duration(200)
             .transition().duration(1000)
             .attr("opacity", 0)
-            .attr("transform", function(d) { return "translate(" + (d.var5 - 10) + "," + (d.var6 - 10) + ")"; });
+            .attr("transform", function(d) { return "translate(" + (xScale3(d.var5) - 10) + "," + (yScale3(d.var6) - 10) + ")"; });
 
           clickState = 2;
         } else if (clickState === 2) {
           // Ritorna alle posizioni iniziali
           transition.selectAll(".leaf")
-            .attr("transform", function(d) { return "translate(" + d.var1 + "," + d.var2 + ")"; });
+            .attr("transform", function(d) { return "translate(" + xScale1(d.var1) + "," + yScale1(d.var2) + ")"; });
 
           transition.selectAll(".fish")
             .attr("opacity", 1)
             .transition().duration(1000)
-            .attr("transform", function(d) { return "translate(" + (d.var1 - 10) + "," + (d.var2 - 10) + ")"; })
+            .attr("transform", function(d) { return "translate(" + (xScale1(d.var1) - 10) + "," + (yScale1(d.var2) - 10) + ")"; })
             .attr("opacity", 0);
 
           clickState = 0;
